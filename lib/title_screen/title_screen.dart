@@ -4,65 +4,96 @@ import '../assets.dart';
 import '../styles.dart';
 import 'title_screen_ui.dart';
 
-class TitleScreen extends StatelessWidget {
+class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
+
+  @override
+  State<StatefulWidget> createState() => _TitleScreenState();
+}
+
+class _TitleScreenState extends State<TitleScreen> {
+  Color get _emitColor =>
+      AppColors.emitColors[_difficultyOverride ?? _difficulty];
+
+  Color get _orbColor =>
+      AppColors.orbColors[_difficultyOverride ?? _difficulty];
+
+  /// Currently selected difficulty
+  int _difficulty = 0;
+
+  /// Currently focused difficulty (if any)
+  int? _difficultyOverride;
+
+  void _handleDifficultyPressed(int value) {
+    setState(() => _difficulty = value);
+  }
+
+  void _handleDifficultyFocused(int? value) {
+    setState(() => _difficultyOverride = value);
+  }
 
   final _finalReceiveLightAmt = 0.7;
   final _finalEmitLightAmt = 0.5;
 
   @override
   Widget build(BuildContext context) {
-    final orbColor = AppColors.orbColors[0];
-    final emitColor = AppColors.emitColors[0];
-
     return Scaffold(
-      backgroundColor: Colors.black,
-      body: Center(
+        backgroundColor: Colors.black,
+        body: Center(
           child: Stack(
-              children: [
+            children: [
+              ///Bg-Base
+              Image.asset(AssetPaths.titleBgBase),
 
-                ///Bg-Base
-                Image.asset(AssetPaths.titleBgBase),
+              ///Bg-Receive
+              _LitImage(
+                  color: _orbColor,
+                  imgSrc: AssetPaths.titleBgReceive,
+                  lightAmt: _finalReceiveLightAmt),
 
-                ///Bg-Receive
-                _LitImage(color: orbColor,
-                    imgSrc: AssetPaths.titleBgReceive,
-                    lightAmt: _finalReceiveLightAmt),
+              ///Mg-Base
+              _LitImage(
+                  color: _orbColor,
+                  imgSrc: AssetPaths.titleMgBase,
+                  lightAmt: _finalReceiveLightAmt),
 
-                ///Mg-Base
-                _LitImage(color: orbColor,
-                    imgSrc: AssetPaths.titleMgBase,
-                    lightAmt: _finalReceiveLightAmt),
+              ///Mg-Receive
+              _LitImage(
+                  color: _orbColor,
+                  imgSrc: AssetPaths.titleMgReceive,
+                  lightAmt: _finalReceiveLightAmt),
 
-                ///Mg-Receive
-                _LitImage(color: orbColor,
-                    imgSrc: AssetPaths.titleMgReceive,
-                    lightAmt: _finalReceiveLightAmt),
+              ///Mg-Emit
+              _LitImage(
+                  color: _emitColor,
+                  imgSrc: AssetPaths.titleMgEmit,
+                  lightAmt: _finalEmitLightAmt),
 
-                ///Mg-Emit
-                _LitImage(color: emitColor,
-                imgSrc: AssetPaths.titleMgEmit,
-                lightAmt: _finalEmitLightAmt),
+              ///Fg-Rocks
+              Image.asset(AssetPaths.titleFgBase),
 
-                ///Fg-Rocks
-                Image.asset(AssetPaths.titleFgBase),
+              ///Fg-Receive
+              _LitImage(
+                  color: _emitColor,
+                  imgSrc: AssetPaths.titleFgReceive,
+                  lightAmt: _finalReceiveLightAmt),
 
-                ///Fg-Receive
-                _LitImage(color: emitColor,
-                    imgSrc: AssetPaths.titleFgReceive,
-                    lightAmt: _finalReceiveLightAmt),
+              ///Fg-Emit
+              _LitImage(
+                  color: _emitColor,
+                  imgSrc: AssetPaths.titleFgEmit,
+                  lightAmt: _finalEmitLightAmt),
 
-                ///Fg-Emit
-                _LitImage(color: emitColor,
-                    imgSrc: AssetPaths.titleFgEmit,
-                    lightAmt: _finalEmitLightAmt),
-
-                ///UI
-                const Positioned.fill(child: TitleScreenUi()),
-
-      ],
-    ),)
-    );
+              ///UI
+              const Positioned.fill(
+                  child: TitleScreenUi(
+                    difficulty: _difficulty,
+                    onDifficultyFocused: _handleDifficultyFocused,
+                    onDifficultyPressed: _handleDifficultyPressed,
+              )),
+            ],
+          ),
+        ));
   }
 }
 

@@ -25,10 +25,12 @@ class TitleScreenUi extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 50),
       child: Stack(
         children: [
-
           ///Title Text
           const TopLeft(
-            child: UiScaler(child: _TitleText(), alignment: Alignment.topLeft),
+            child: UiScaler(
+                child: _TitleText(),
+                alignment: Alignment.topLeft
+            ),
           ),
 
           ///Difficulty Btns
@@ -64,12 +66,25 @@ class _DifficultyBtns extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        _DifficultyBtn extends StatelessWidget(
+        _DifficultyBtn(
           label: 'Casual',
+          selected: difficulty == 0,
+          onPressed: () => onDifficultyPressed(0),
+          onHover: (over) => onDifficultyFocused(over ? 0 : null),
+        ),
+        _DifficultyBtn(
+          label: 'Normal',
           selected: difficulty == 1,
           onPressed: () => onDifficultyPressed(1),
           onHover: (over) => onDifficultyFocused(over ? 1 : null),
-        )
+        ),
+        _DifficultyBtn(
+          label: 'HardCore',
+          selected: difficulty == 2,
+          onPressed: () => onDifficultyPressed(2),
+          onHover: (over) => onDifficultyFocused(over ? 2 : null),
+        ),
+        const Gap(20),
       ],
     );
   }
@@ -103,7 +118,6 @@ class _DifficultyBtn extends StatelessWidget {
             height: 60,
             child: Stack(
               children: [
-
                 /// Bg with fill and outline
                 Container(
                   decoration: BoxDecoration(
@@ -118,6 +132,8 @@ class _DifficultyBtn extends StatelessWidget {
                       )
                   )
                 ],
+
+                /// cross-hairs (selected state)
                 if (selected) ...[
                   CenterLeft(
                     child: Image.asset(AssetPaths.titleSelectedLeft),
