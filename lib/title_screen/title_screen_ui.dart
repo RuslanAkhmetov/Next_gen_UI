@@ -1,9 +1,13 @@
 import 'package:extra_alignments/extra_alignments.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:focusable_control_builder/focusable_control_builder.dart';
 import 'package:gap/gap.dart';
+import 'package:provider/provider.dart';
 
 import '../assets.dart';
+import '../common/shader_effect.dart';
+import '../common/ticking_builder.dart';
 import '../common/ui_scaler.dart';
 import '../styles.dart';
 
@@ -25,12 +29,10 @@ class TitleScreenUi extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 50),
       child: Stack(
         children: [
+
           ///Title Text
           const TopLeft(
-            child: UiScaler(
-                child: _TitleText(),
-                alignment: Alignment.topLeft
-            ),
+            child: UiScaler(child: _TitleText(), alignment: Alignment.topLeft),
           ),
 
           ///Difficulty Btns
@@ -43,9 +45,76 @@ class TitleScreenUi extends StatelessWidget {
                 onDifficultyFocused: onDifficultyFocused,
               ),
             ),
-          )
+          ),
+
+          ///StartBtn
+          BottomRight(
+              child: UiScaler(
+                alignment: Alignment.bottomRight,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 20, right: 40),
+                  child: _StartBtn(onPressed: () {}),
+                ),
+              ))
         ],
       ),
+    );
+  }
+}
+
+class _StartBtn extends StatefulWidget {
+  const _StartBtn({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  State<_StartBtn> createState() => _StartBtnState();
+}
+
+class _StartBtnState extends State<_StartBtn> {
+  AnimationController? _btnAnim;
+  bool _wasHovered = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return FocusableControlBuilder(
+      cursor: SystemMouseCursors.click,
+      onPressed: widget.onPressed,
+      builder: (_, state) {
+        if ((state.isHovered || state.isFocused) &&
+            !_wasHovered &&
+            _btnAnim?.status != AnimationStatus.forward) {
+          _btnAnim?.forward(from: 0);
+        }
+        _wasHovered = (state.isHovered || state.isFocused);
+        return SizedBox(
+          width: 520,
+          height: 100,
+          child: Stack(
+            children: [
+              Positioned.fill(child: Image.asset(AssetPaths.titleStartBtn)),
+              if (state.isHovered || state.isFocused) ...[
+                Positioned.fill(child: Image.asset(AssetPaths.titleStartBtn))
+              ],
+              Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text('START MISSION',
+                        style: TextStyles.btn
+                            .copyWith(fontSize: 24, letterSpacing: 18)),
+                  ],
+                ),
+              )
+            ],
+          )
+              .animate(autoPlay: false, onInit: (c) => _btnAnim = c)
+              .shimmer(duration: .7.seconds, color: Colors.black),
+        )
+            .animate()
+            .fadeIn(delay: 2.3.seconds)
+            .slide(begin: const Offset(0, .2));
+      },
     );
   }
 }
@@ -71,25 +140,32 @@ class _DifficultyBtns extends StatelessWidget {
           selected: difficulty == 0,
           onPressed: () => onDifficultyPressed(0),
           onHover: (over) => onDifficultyFocused(over ? 0 : null),
-        ),
+        )
+            .animate()
+            .fadeIn(delay: 1.3.seconds, duration: 0.35.seconds)
+            .slide(begin: const Offset(0, .2)),
         _DifficultyBtn(
           label: 'Normal',
           selected: difficulty == 1,
           onPressed: () => onDifficultyPressed(1),
           onHover: (over) => onDifficultyFocused(over ? 1 : null),
-        ),
+        )
+            .animate()
+            .fadeIn(delay: 1.5.seconds, duration: 0.35.seconds)
+            .slide(begin: const Offset(0, .5)),
         _DifficultyBtn(
           label: 'HardCore',
           selected: difficulty == 2,
           onPressed: () => onDifficultyPressed(2),
           onHover: (over) => onDifficultyFocused(over ? 2 : null),
-        ),
+        )
+            .animate()
+            .fadeIn(delay: 1.7.seconds, duration: 0.35.seconds)
+            .slide(begin: const Offset(0, .7)),
         const Gap(20),
       ],
     );
   }
-
-
 }
 
 class _DifficultyBtn extends StatelessWidget {
@@ -118,19 +194,25 @@ class _DifficultyBtn extends StatelessWidget {
             height: 60,
             child: Stack(
               children: [
+
                 /// Bg with fill and outline
-                Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF00D1FF).withOpacity(.1),
-                    border: Border.all(color: Colors.white, width: 5),
+                AnimatedOpacity(
+                  opacity: (!selected && (state.isHovered || state.isFocused))
+                      ? 1
+                      : 0,
+                  duration: .3.seconds,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF00D1FF).withOpacity(.1),
+                      border: Border.all(color: Colors.white, width: 5),
+                    ),
                   ),
                 ),
-                if (state.isHovered || state.isFocused) ... [
+                if (state.isHovered || state.isFocused) ...[
                   Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFF00D1FF).withOpacity(.1),
-                      )
-                  )
+                      ))
                 ],
 
                 /// cross-hairs (selected state)
@@ -161,7 +243,7 @@ class _TitleText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
+    Widget content = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -189,9 +271,33 @@ class _TitleText extends StatelessWidget {
               height: 65,
             )
           ],
-        ),
-        Text('INTO THE UNKNOWN', style: TextStyles.h3),
+        ).animate().fadeIn(delay: .8.seconds, duration: .7.seconds),
+        Text('INTO THE UNKNOWN', style: TextStyles.h3)
+            .animate()
+            .fadeIn(delay: 1.seconds, duration: .7.seconds),
       ],
+    );
+    return Consumer<FragmentPrograms?>(
+      builder: (context, fragmentPrograms, _) {
+        if (fragmentPrograms == null) return content;
+        return TickingBuilder(
+            builder: (context, time) {
+              return AnimatedSampler((image, size, canvas) {
+                const double overdrawPx = 30;
+                final shader = fragmentPrograms.ui.fragmentShader();
+                shader
+                  ..setFloat(0, size.width)
+                  ..setFloat(1, size.height)
+                  ..setFloat(2, time)
+                  ..setImageSampler(0, image);
+                Rect rect = Rect.fromLTWH(-overdrawPx, -overdrawPx,
+                    size.width + overdrawPx, size.height + overdrawPx);
+                canvas.drawRect(rect, Paint()..shader = shader);
+              }, child: content
+              );
+            }
+        );
+      },
     );
   }
 }

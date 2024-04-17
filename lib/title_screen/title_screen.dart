@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../assets.dart';
 import '../styles.dart';
@@ -8,7 +9,7 @@ class TitleScreen extends StatefulWidget {
   const TitleScreen({super.key});
 
   @override
-  State<StatefulWidget> createState() => _TitleScreenState();
+  State<TitleScreen> createState() => _TitleScreenState();
 }
 
 class _TitleScreenState extends State<TitleScreen> {
@@ -40,60 +41,70 @@ class _TitleScreenState extends State<TitleScreen> {
     return Scaffold(
         backgroundColor: Colors.black,
         body: Center(
-          child: Stack(
-            children: [
-              ///Bg-Base
-              Image.asset(AssetPaths.titleBgBase),
+          child: _AnimateColors(
+            orbColor: _orbColor,
+            emitColor: _emitColor,
+            builder: (_, orbColor, emitColor) {
+              return Stack(
+                children: [
+                  ///Bg-Base
+                  Image.asset(AssetPaths.titleBgBase),
 
-              ///Bg-Receive
-              _LitImage(
-                  color: _orbColor,
-                  imgSrc: AssetPaths.titleBgReceive,
-                  lightAmt: _finalReceiveLightAmt),
+                  ///Bg-Receive
+                  _LitImage(
+                      color: _orbColor,
+                      imgSrc: AssetPaths.titleBgReceive,
+                      lightAmt: _finalReceiveLightAmt),
 
-              ///Mg-Base
-              _LitImage(
-                  color: _orbColor,
-                  imgSrc: AssetPaths.titleMgBase,
-                  lightAmt: _finalReceiveLightAmt),
+                  ///Mg-Base
+                  _LitImage(
+                      color: _orbColor,
+                      imgSrc: AssetPaths.titleMgBase,
+                      lightAmt: _finalReceiveLightAmt),
 
-              ///Mg-Receive
-              _LitImage(
-                  color: _orbColor,
-                  imgSrc: AssetPaths.titleMgReceive,
-                  lightAmt: _finalReceiveLightAmt),
+                  ///Mg-Receive
+                  _LitImage(
+                      color: _orbColor,
+                      imgSrc: AssetPaths.titleMgReceive,
+                      lightAmt: _finalReceiveLightAmt),
 
-              ///Mg-Emit
-              _LitImage(
-                  color: _emitColor,
-                  imgSrc: AssetPaths.titleMgEmit,
-                  lightAmt: _finalEmitLightAmt),
+                  ///Mg-Emit
+                  _LitImage(
+                    color: _emitColor,
+                    imgSrc: AssetPaths.titleMgEmit,
+                    lightAmt: _finalEmitLightAmt,
+                  ),
 
-              ///Fg-Rocks
-              Image.asset(AssetPaths.titleFgBase),
+                  ///Fg-Rocks
+                  Image.asset(AssetPaths.titleFgBase),
 
-              ///Fg-Receive
-              _LitImage(
-                  color: _emitColor,
-                  imgSrc: AssetPaths.titleFgReceive,
-                  lightAmt: _finalReceiveLightAmt),
+                  ///Fg-Receive
+                  _LitImage(
+                    color: _orbColor,
+                    imgSrc: AssetPaths.titleFgReceive,
+                    lightAmt: _finalReceiveLightAmt,
+                  ),
 
-              ///Fg-Emit
-              _LitImage(
-                  color: _emitColor,
-                  imgSrc: AssetPaths.titleFgEmit,
-                  lightAmt: _finalEmitLightAmt),
+                  ///Fg-Emit
+                  _LitImage(
+                    color: _emitColor,
+                    imgSrc: AssetPaths.titleFgEmit,
+                    lightAmt: _finalEmitLightAmt,
+                  ),
 
-              ///UI
-              const Positioned.fill(
-                  child: TitleScreenUi(
+                  ///UI
+                  Positioned.fill(
+                      child: TitleScreenUi(
                     difficulty: _difficulty,
                     onDifficultyFocused: _handleDifficultyFocused,
                     onDifficultyPressed: _handleDifficultyPressed,
-              )),
-            ],
+                  )),
+                ],
+              ).animate().fadeIn(duration: 1.seconds, delay: .3.seconds);
+            },
           ),
-        ));
+        )
+    );
   }
 }
 
@@ -116,5 +127,29 @@ class _LitImage extends StatelessWidget {
       color: hsl.withLightness(hsl.lightness * lightAmt).toColor(),
       colorBlendMode: BlendMode.modulate,
     );
+  }
+}
+
+class _AnimateColors extends StatelessWidget {
+  const _AnimateColors({
+    required this.emitColor,
+    required this.orbColor,
+    required this.builder,
+  });
+
+  final Color emitColor;
+  final Color orbColor;
+  final Widget Function(BuildContext context, Color orbColor, Color emitColor)
+      builder;
+
+  @override
+  Widget build(BuildContext context) {
+    final duration = .5.seconds;
+    return TweenAnimationBuilder(
+        tween: ColorTween(begin: emitColor, end: orbColor),
+        duration: duration,
+        builder: (context, orbColor, __) {
+          return builder(context, orbColor!, emitColor!);
+        });
   }
 }
